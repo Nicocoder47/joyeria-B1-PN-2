@@ -8,6 +8,7 @@ import NavBar from "./components/NavBar"; // Barra
 import Home from "./pages/Home"; // Inicio
 import ProductDetail from "./pages/ProductDetail"; // Detalle
 import Cart from "./pages/Cart"; // Carrito
+import Admin from "./pages/Admin"; // Admin
 
 export default function App() { // Componente
   const theme = useMemo(() => themeFactory(), []); // Instancia
@@ -21,6 +22,7 @@ export default function App() { // Componente
           <Route path="/" element={<Home />} /> {/* Inicio */}
           <Route path="/product/:id" element={<ProductDetail />} /> {/* Detalle */}
           <Route path="/cart" element={<Cart />} /> {/* Carrito */}
+          <Route path="/admin" element={<Admin />} /> {/* Admin */}
           <Route
             path="*"
             element={<p>404 — <Link to="/">Volver</Link></p>}
