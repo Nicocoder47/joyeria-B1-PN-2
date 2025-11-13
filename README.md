@@ -30,8 +30,7 @@ npm run start-server
 npm run dev
 ```
 
-Nota: el servidor corre por defecto en http://localhost:3000 y Vite en http://localhost:5173. Asegúrate de que tu IP esté permitida en MongoDB Atlas (whitelist) o usa una URI accesible.
-
+Nota: el servidor corre por defecto en http://localhost:3000 y Vite en http://localhost:5173. 
 Endpoints principales
 
 Productos (API REST JSON)
@@ -57,23 +56,4 @@ Carritos
 - PUT /carts/:cid/products/:pid  -> actualiza sólo la cantidad (body: { quantity })
 - DELETE /carts/:cid  -> vacía el carrito
 
-Notas
-- `products.json` se mantiene como referencia/fallback si la DB no está disponible en modo desarrollo.
-- Las vistas server-side están disponibles bajo `/views`:
-	- `/views/products` -> listado paginado (Handlebars)
-	- `/views/products/:pid` -> detalle (con botón "Agregar al carrito")
-	- `/views/carts/:cid` -> vista del carrito (populate)
 
-Pruebas incluidas
-- Seed de ejemplo: `node src/db/seed.js` (inserta productos de ejemplo en Mongo)
-- Script de tests de carrito end-to-end: `node scripts/run-cart-tests.mjs` (crea carrito, agrega productos, actualiza, borra y valida respuestas)
-
-Recomendaciones
-- Para producción usar una base de datos adecuada, configurar variables de entorno seguras y no exponer credenciales en el repositorio.
-
-Formato requerido por la Entrega Final
-- GET /products devuelve exactamente la estructura con `status`, `payload` y meta (totalPages, prevPage, nextPage, page, hasPrevPage, hasNextPage, prevLink, nextLink).
-- Los endpoints de carrito realizan `populate` en GET /carts/:cid y almacenan referencias (`ObjectId`) en `Cart.products.product`.
-
-Soporte
-- Si necesitas que ejecute los tests aquí (seed + start-server + run-cart-tests) dime y lo hago; actualmente los tests de carrito pasan correctamente en mi verificación local.
