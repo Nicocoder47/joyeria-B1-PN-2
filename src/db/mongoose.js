@@ -19,7 +19,7 @@ export async function connect() {
     console.log('Connected to MongoDB');
   } catch (error) {
     console.warn('Mongo connection error (fallback to file-based mode):', error.message);
-    // No lanzar error; permitir que el servidor arranque sin Mongo
+    // Fallback
   }
 }
 

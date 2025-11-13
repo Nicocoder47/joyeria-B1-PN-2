@@ -7,7 +7,7 @@ import socket from "../services/socket"; // Socket
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
-// inicialmente vacio; se cargará desde el servidor
+// Inicial
 
 export default function Home() { // Componente
   const [filters, setFilters] = useState({ q: "", cat: "", metal: "", price: [0, 200000] }); // Estado
@@ -16,7 +16,7 @@ export default function Home() { // Componente
 
   useEffect(() => {
     let mounted = true;
-    // fetch inicial (usar siempre backend http://localhost:3000 si no hay VITE_API_URL activo)
+    // Fetch
     fetch(`${API_BASE}/products`)
       .then((r) => r.json())
       .then((data) => { if (mounted) setDATA(data.payload || []); })

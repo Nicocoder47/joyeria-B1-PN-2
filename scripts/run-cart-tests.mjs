@@ -10,14 +10,14 @@ async function req(path, opts={}){
 
 (async ()=>{
   console.log('=== Cart tests ===');
-  // create cart
+  // Crear
   let r = await req('/carts', {method:'POST'});
   console.log('/carts', r.status, r.body);
   if(r.status!==201) process.exit(1);
   const cid = r.body.payload?.id || r.body.id || r.body;
   console.log('cart id', cid);
 
-  // get products list
+  // Productos
   r = await req('/products');
   console.log('/products', r.status);
   if(r.status!==200) process.exit(1);
@@ -27,49 +27,49 @@ async function req(path, opts={}){
   const objId = products[0]._id;
   console.log('product ids', logicalId, objId);
 
-  // add by logical id
+  // Logico
   r = await req(`/carts/${cid}/products/${logicalId}`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({})});
   console.log('add by logical id', r.status, r.body);
   if(r.status!==200) process.exit(1);
 
-  // add by _id
+  // Mongo
   r = await req(`/carts/${cid}/products/${objId}`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({})});
   console.log('add by _id', r.status, r.body);
   if(r.status!==200) process.exit(1);
 
-  // get cart
+  // Carrito
   r = await req(`/carts/${cid}`);
   console.log('get cart', r.status, r.body);
   if(r.status!==200) process.exit(1);
 
-  // update quantity
+  // Cantidad
   const pid = r.body.payload?.products?.[0]?.product?._id || objId;
   r = await req(`/carts/${cid}/products/${pid}`, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({quantity:5})});
   console.log('update qty', r.status, r.body);
   if(r.status!==200) process.exit(1);
 
-  // delete product
+  // Borrar
   r = await req(`/carts/${cid}/products/${pid}`, {method:'DELETE'});
   console.log('delete product', r.status, r.body);
   if(r.status!==200) process.exit(1);
 
-  // empty cart
+  // Vaciar
   r = await req(`/carts/${cid}`, {method:'DELETE'});
   console.log('empty cart', r.status, r.body);
   if(r.status!==200) process.exit(1);
 
-  // Test order creation flow
-  // add a product again
+  // Orden
+  // Repetir
   r = await req(`/carts/${cid}/products/${logicalId}`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({})});
   console.log('add for order', r.status);
   if(r.status!==200) process.exit(1);
 
-  // create order
+  // Crear
   r = await req(`/orders`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ cartId: cid }) });
   console.log('create order', r.status, r.body);
   if (r.status !== 201) process.exit(1);
 
-  // verify cart emptied
+  // Verificar
   r = await req(`/carts/${cid}`);
   console.log('post-order get cart', r.status, r.body);
   if (r.status !== 200) process.exit(1);

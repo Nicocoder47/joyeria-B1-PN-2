@@ -24,7 +24,7 @@ export default function Cart() { // Componente
         if (!cartId) throw new Error('Respuesta inválida al crear carrito');
         localStorage.setItem('joyas_cart_id', cartId);
       }
-      // Crear orden en el backend (reduce stock, vacía carrito)
+      // Orden
       const orderRes = await fetch(`${API_BASE}/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -36,9 +36,9 @@ export default function Cart() { // Componente
       }
       const orderData = await orderRes.json();
       const orderId = orderData?.payload?.orderId || orderData?.payload?.orderId || orderData?.orderId || null;
-      // limpiar local
+      // Limpiar
       localStorage.removeItem('joyas_cart_v1');
-      // abrir confirmación
+      // Confirmacion
       if (orderId) window.open(`${API_BASE}/views/orders/${orderId}`, '_blank');
       setSnack({ open: true, severity: 'success', message: 'Pedido creado correctamente.' });
     } catch (e) {
@@ -47,7 +47,7 @@ export default function Cart() { // Componente
     }
   }
 
-  if (!items.length) // Vacío
+  if (!items.length) // Vacio
     return (
       <Stack alignItems="center" gap={2} mt={4}> {/* Contenedor */}
         <Typography variant="h5">Tu carrito está vacío</Typography> {/* Texto */}

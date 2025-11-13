@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import Product from '../models/Product.js';
 import { connect } from './mongoose.js';
 
-// Tus productos confirmados (sin el campo "id" que genera Mongo)
+// Productos
 const productsToSeed = [
   {
     id: "anillo-corazon-01",

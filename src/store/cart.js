@@ -28,9 +28,9 @@ function saveItems(items) {
 }
 
 export const useCart = create((set, get) => ({ // Store
-  items: loadItems(), // [{ productId, id, name, price, qty, image }]
+  items: loadItems(), // Items
 
-  // Helper: normalize product object into cart-item
+  // Normalizador
   _normalize(product, qty = 1) {
     const productId = product._id || product.id || null;
     return {
@@ -92,12 +92,12 @@ export const useCart = create((set, get) => ({ // Store
     return get().items.map(i => ({ ...i }));
   },
 
-  // Async: sync cart to backend (use /sync which maps logical ids -> ObjectIds)
+  // Sincronizar
   async syncToServer(cartId) {
     try {
       if (!cartId) throw new Error('cartId required to sync');
       const API_BASE = import.meta.env.VITE_API_URL || '';
-      // send simple items array expected by /carts/:cid/sync
+      // Payload
       const items = get().items.map(i => ({ id: i.id || i.productId, qty: i.qty }));
       const url = `${API_BASE}/carts/${cartId}/sync`;
       const res = await fetch(url, {
@@ -117,7 +117,7 @@ export const useCart = create((set, get) => ({ // Store
     }
   },
 
-  // Async: load cart from server and replace local cart
+  // Cargar
   async loadFromServer(cartId) {
     try {
       if (!cartId) throw new Error('cartId required to load');
@@ -128,7 +128,7 @@ export const useCart = create((set, get) => ({ // Store
         throw new Error(`Load failed${txt ? `: ${txt}` : ''}`);
       }
       const data = await res.json();
-      // data.payload expected (server returns {status,payload:cart})
+      // Payload
       const cart = data.payload || data;
       const items = (cart.products || []).map(p => ({
         productId: p.product?._id || p.product,

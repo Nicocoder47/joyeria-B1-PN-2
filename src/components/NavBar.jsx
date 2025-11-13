@@ -7,7 +7,7 @@ import { useCart } from "../store/cart"; // Estado
 
 export default function NavBar() { // Componente
   const navigate = useNavigate(); // Navegador
-  const qty = useCart((s) => s.count()); // Cantidad reactiva desde el store
+  const qty = useCart((s) => s.count()); // Cantidad
 
   return ( // Render
     <AppBar position="sticky" color="inherit" elevation={0} sx={{ borderBottom: "1px solid #eee" }}> {/* Barra */}

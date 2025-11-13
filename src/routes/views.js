@@ -4,7 +4,7 @@ import Cart from '../models/Cart.js';
 
 const router = express.Router();
 
-// GET /views/products?page=&limit=&sort=&query=
+// Productos
 router.get('/products', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) > 0 ? parseInt(req.query.limit) : 10;
@@ -38,7 +38,7 @@ router.get('/products', async (req, res) => {
   }
 });
 
-// GET /views/products/:pid
+// Detalle
 router.get('/products/:pid', async (req, res) => {
   try {
     const p = await Product.findById(req.params.pid).lean();
@@ -50,12 +50,12 @@ router.get('/products/:pid', async (req, res) => {
   }
 });
 
-// POST /views/products/:pid/add-to-cart -> for HBS form action
+// Agregar
 router.post('/products/:pid/add-to-cart', async (req, res) => {
   try {
     const pid = req.params.pid;
-    // for simplicity, use or create a default cart id stored in session-less demo: create new cart if not present
-    // here we create a new cart and add the product
+    // Carrito
+    // Crear
     let cart = new Cart({ products: [{ product: pid, quantity: 1 }] });
     await cart.save();
     res.redirect(`/views/carts/${cart._id}`);
@@ -65,7 +65,7 @@ router.post('/products/:pid/add-to-cart', async (req, res) => {
   }
 });
 
-// GET /views/carts/:cid
+// Carrito
 router.get('/carts/:cid', async (req, res) => {
   try {
     const cart = await Cart.findById(req.params.cid).populate('products.product').lean();
@@ -77,7 +77,7 @@ router.get('/carts/:cid', async (req, res) => {
   }
 });
 
-// GET /views/orders/:oid -> mostrar confirmación de pedido
+// Orden
 router.get('/orders/:oid', async (req, res) => {
   try {
     const Order = (await import('../models/Order.js')).default;

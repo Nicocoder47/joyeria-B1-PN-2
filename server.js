@@ -14,7 +14,7 @@ import cors from 'cors';
 
 const app = express();
 const server = http.createServer(app);
-// allow Vite dev servers and local frontend origins during development
+// Origenes
 const allowedOrigins = [process.env.VITE_API_URL || 'http://localhost:3000', 'http://localhost:5173', 'http://localhost:5174'];
 const io = new Server(server, {
   cors: {
@@ -25,7 +25,7 @@ const io = new Server(server, {
 
 dotenv.config();
 
-// Configure CORS to accept requests from the dev frontends and the API origin
+// CORS
 app.use(cors({ origin: (origin, cb) => {
   if (!origin) return cb(null, true);
   if (allowedOrigins.includes(origin)) return cb(null, true);
@@ -33,10 +33,10 @@ app.use(cors({ origin: (origin, cb) => {
 }, credentials: true }));
 app.use(express.json());
 
-// Static files (public)
+// Publico
 app.use(express.static(path.join(process.cwd(), 'public')));
 
-// View engine setup with helpers
+// Vistas
 app.engine('handlebars', engine({
   helpers: {
     add: (a, b) => (Number(a) || 0) + (Number(b) || 0),
@@ -46,7 +46,7 @@ app.engine('handlebars', engine({
 app.set('view engine', 'handlebars');
 app.set('views', path.join(process.cwd(), 'views'));
 
-// Connect to Mongo (intentar, pero permitir fallback a archivo local si falla)
+// Mongo
 let dbConnected = false;
 try {
   await connect();
@@ -55,13 +55,13 @@ try {
   console.warn('Mongo connection failed, starting server in fallback (file-based) mode. Error:', err.message);
 }
 
-// GET /products con paginación, filtros y orden
+// Productos
 app.get('/products', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 10;
     const page = parseInt(req.query.page) || 1;
     const sort = req.query.sort === 'asc' ? 1 : req.query.sort === 'desc' ? -1 : null;
-    const query = req.query.query || null; // puede ser categoría o 'available'
+    const query = req.query.query || null; // Consulta
 
     const filter = {};
     if (query) {
@@ -98,13 +98,13 @@ app.get('/products', async (req, res) => {
     });
   } catch (error) {
     console.error('Error getting products from DB:', error);
-    // Si la DB no está disponible, devolver un fallback leyendo products.json en public o raíz
+    // Fallback
     if (!dbConnected) {
       try {
         const filePath = path.join(process.cwd(), 'products.json');
         const file = await fs.readFile(filePath, 'utf-8');
         const all = JSON.parse(file);
-        // Responder con la misma forma esperada por el frontend
+        // Respuesta
         return res.json({ status: 'success', payload: all, totalPages: 1, prevPage: null, nextPage: null, page: 1, hasPrevPage: false, hasNextPage: false, prevLink: null, nextLink: null });
       } catch (fileErr) {
         console.error('Fallback file read error:', fileErr);
@@ -115,10 +115,10 @@ app.get('/products', async (req, res) => {
   }
 });
 
-// CRUD productos usando Mongo
+// CRUD
 app.post('/products', async (req, res) => {
   const body = req.body;
-  // Validación mínima
+  // Validacion
   if (!body || !body.id || !body.name || typeof body.price !== 'number') {
     return res.status(400).json({ status: 'error', error: 'Invalid product payload. Required: id, name, price (number).' });
   }
@@ -136,7 +136,7 @@ app.put('/products/:id', async (req, res) => {
   const id = req.params.id;
   const body = req.body;
   try {
-    // Validación mínima
+    // Validacion
     if (!body || (body.price && typeof body.price !== 'number')) return res.status(400).json({ status: 'error', error: 'Invalid update payload' });
     const updated = await Product.findOneAndUpdate({ id }, body, { new: true });
     if (!updated) return res.status(404).json({ status: 'error', error: 'Product not found' });
@@ -222,10 +222,10 @@ server.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
 
-// Mount views router at /views (products and carts HBS)
+// Views
 app.use('/views', viewsRouter);
 
-// Carts endpoints
+// Carritos
 app.get('/carts/:cid', async (req, res) => {
   try {
     if (!dbConnected) return res.status(503).json({ error: 'DB not connected' });
@@ -238,7 +238,7 @@ app.get('/carts/:cid', async (req, res) => {
   }
 });
 
-// POST api/carts -> crear carrito vacío
+// Crear
 app.post('/carts', async (req, res) => {
   try {
     if (!dbConnected) return res.status(503).json({ error: 'DB not connected' });
@@ -250,7 +250,7 @@ app.post('/carts', async (req, res) => {
   }
 });
 
-// POST api/carts/:cid/products/:pid -> agregar producto por id "lógico" (campo id del Product)
+// Agregar
 app.post('/carts/:cid/products/:pid', async (req, res) => {
   try {
     if (!dbConnected) return res.status(503).json({ error: 'DB not connected' });
@@ -258,7 +258,7 @@ app.post('/carts/:cid/products/:pid', async (req, res) => {
     const quantity = Number(req.body?.quantity || 1);
     const cart = await Cart.findById(cid);
     if (!cart) return res.status(404).json({ error: 'Cart not found' });
-    // Evitar CastError validando si pid es ObjectId
+    // Validacion
     let productDoc = null;
     if (/^[0-9a-fA-F]{24}$/.test(pid)) productDoc = await Product.findById(pid);
     if (!productDoc) productDoc = await Product.findOne({ id: pid });
@@ -275,7 +275,7 @@ app.post('/carts/:cid/products/:pid', async (req, res) => {
   }
 });
 
-// POST api/carts/:cid/sync -> reemplazar carrito con items [{ id, qty }]
+// Sincronizar
 app.post('/carts/:cid/sync', async (req, res) => {
   try {
     if (!dbConnected) return res.status(503).json({ error: 'DB not connected' });
@@ -284,7 +284,7 @@ app.post('/carts/:cid/sync', async (req, res) => {
     const cart = await Cart.findById(cid);
     if (!cart) return res.status(404).json({ error: 'Cart not found' });
 
-    // Buscar todos los productos por su campo lógico "id"
+    // Busqueda
     const ids = items.map(i => i.id);
     const products = await Product.find({ id: { $in: ids } }, { _id: 1, id: 1 }).lean();
     const map = new Map(products.map(p => [p.id, p._id]));
@@ -301,7 +301,7 @@ app.post('/carts/:cid/sync', async (req, res) => {
   }
 });
 
-// DELETE api/carts/:cid/products/:pid
+// Eliminar
 app.delete('/carts/:cid/products/:pid', async (req, res) => {
   try {
     if (!dbConnected) return res.status(503).json({ error: 'DB not connected' });
@@ -317,12 +317,12 @@ app.delete('/carts/:cid/products/:pid', async (req, res) => {
   }
 });
 
-// PUT api/carts/:cid -> reemplazar arreglo de productos
+// Reemplazar
 app.put('/carts/:cid', async (req, res) => {
   try {
     if (!dbConnected) return res.status(503).json({ error: 'DB not connected' });
     const cid = req.params.cid;
-    const productsArray = req.body.products; // [{ product: productId, quantity }]
+    const productsArray = req.body.products; // Productos
     const cart = await Cart.findById(cid);
     if (!cart) return res.status(404).json({ error: 'Cart not found' });
     cart.products = productsArray.map(p => ({ product: p.product, quantity: p.quantity }));
@@ -334,7 +334,7 @@ app.put('/carts/:cid', async (req, res) => {
   }
 });
 
-// PUT api/carts/:cid/products/:pid -> actualizar sólo cantidad
+// Actualizar
 app.put('/carts/:cid/products/:pid', async (req, res) => {
   try {
     if (!dbConnected) return res.status(503).json({ error: 'DB not connected' });
@@ -353,7 +353,7 @@ app.put('/carts/:cid/products/:pid', async (req, res) => {
   }
 });
 
-// DELETE api/carts/:cid -> eliminar todos los productos del carrito
+// Vaciar
 app.delete('/carts/:cid', async (req, res) => {
   try {
     if (!dbConnected) return res.status(503).json({ error: 'DB not connected' });
@@ -369,12 +369,12 @@ app.delete('/carts/:cid', async (req, res) => {
   }
 });
 
-// GET /products/:id -> devuelve un producto por su campo `id` o por _id
+// Producto
 app.get('/products/:pid', async (req, res) => {
   try {
     const pid = req.params.pid;
     let product = null;
-    // Si parece un ObjectId, usar findById, si no buscar por campo `id`
+    // ObjectId
     if (/^[0-9a-fA-F]{24}$/.test(pid)) {
       product = await Product.findById(pid).lean();
     }
@@ -389,7 +389,7 @@ app.get('/products/:pid', async (req, res) => {
   }
 });
 
-// POST /orders -> finalizar compra: recibe { cartId }
+// Orden
 app.post('/orders', async (req, res) => {
   const { cartId } = req.body || {};
   if (!cartId) return res.status(400).json({ status: 'error', error: 'cartId required' });
@@ -409,7 +409,7 @@ app.post('/orders', async (req, res) => {
       return res.status(400).json({ status: 'error', error: 'Cart is empty' });
     }
 
-    // Verify stock and compute total
+    // Stock
     let total = 0;
     for (const item of cart.products) {
       const prod = item.product;
@@ -427,7 +427,7 @@ app.post('/orders', async (req, res) => {
       total += Number(prod.price || 0) * qty;
     }
 
-    // Reduce stock
+    // Reducir
     for (const item of cart.products) {
       const prod = item.product;
       const qty = Number(item.quantity || 0);
@@ -435,14 +435,14 @@ app.post('/orders', async (req, res) => {
       await prod.save({ session });
     }
 
-    // Create order
+    // Crear
     const orderData = {
       products: cart.products.map(i => ({ product: i.product._id, quantity: i.quantity, price: Number(i.product.price || 0) })),
       total
     };
     const order = await Order.create([orderData], { session }).then(docs => docs[0]);
 
-    // Empty cart
+    // Vaciar
     cart.products = [];
     await cart.save({ session });
 

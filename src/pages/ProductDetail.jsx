@@ -7,7 +7,7 @@ import { useCart } from "../store/cart"; // Estado
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export default function ProductDetail() { // Componente
-  const { id } = useParams(); // Parámetro (usa el campo `id` del producto cuando viene de ProductCard)
+  const { id } = useParams(); // Parametro
   const { add } = useCart(); // Acción
   const [p, setP] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -54,7 +54,7 @@ export default function ProductDetail() { // Componente
             <Chip label={p.metal} />
             {p.stones && <Chip label={p.stones} />}
           </Stack>
-          {/* La descripción se muestra sólo en esta vista (no en las tarjetas) */}
+          {/* Descripcion */}
           <Typography color="text.secondary">{p.description}</Typography>
           <Typography variant="body2">Stock: {p.stock}</Typography>
           <Stack direction="row" gap={2}>
