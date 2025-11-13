@@ -5,6 +5,8 @@ import ProductCard from "../components/ProductCard"; // Tarjeta
 import Filters from "../components/Filters"; // Filtros
 import socket from "../services/socket"; // Socket
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 // inicialmente vacio; se cargará desde el servidor
 
 export default function Home() { // Componente
@@ -14,10 +16,10 @@ export default function Home() { // Componente
 
   useEffect(() => {
     let mounted = true;
-    // fetch inicial
-    fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/products` : '/products')
+    // fetch inicial (usar siempre backend http://localhost:3000 si no hay VITE_API_URL activo)
+    fetch(`${API_BASE}/products`)
       .then((r) => r.json())
-      .then((data) => { if (mounted) setDATA(data); })
+      .then((data) => { if (mounted) setDATA(data.payload || []); })
       .catch((e) => console.error('Failed to fetch products', e));
 
     socket.on('productsUpdated', (productos) => setDATA(productos));

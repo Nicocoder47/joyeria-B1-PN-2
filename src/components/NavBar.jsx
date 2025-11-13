@@ -6,9 +6,8 @@ import { Link, useNavigate } from "react-router-dom"; // Router
 import { useCart } from "../store/cart"; // Estado
 
 export default function NavBar() { // Componente
-  const items = useCart((s) => s.items); // Items
   const navigate = useNavigate(); // Navegador
-  const qty = items.reduce((a, b) => a + b.qty, 0); // Cantidad
+  const qty = useCart((s) => s.count()); // Cantidad reactiva desde el store
 
   return ( // Render
     <AppBar position="sticky" color="inherit" elevation={0} sx={{ borderBottom: "1px solid #eee" }}> {/* Barra */}

@@ -1,0 +1,28 @@
+<h1>Colección</h1>
+{{#if products.length}}
+  <ul>
+    {{#each products}}
+      <li>
+        <h3>{{this.name}} — ${{this.price}}</h3>
+        <p>{{this.category}} • {{this.metal}}</p>
+        <img src="{{#if this.images.[0]}}{{this.images.[0]}}{{else}}/assets/placeholder.png{{/if}}" width="200" />
+        <p>{{this.description}}</p>
+        <a href="/views/products/{{this._id}}">Ver detalle</a>
+        <form method="post" action="/views/products/{{this._id}}/add-to-cart" style="display:inline">
+          <button type="submit">Agregar al carrito</button>
+        </form>
+      </li>
+    {{/each}}
+  </ul>
+  <div>
+    {{#if pagination.hasPrev}}
+      <a href="?page={{subtract pagination.page 1}}">Anterior</a>
+    {{/if}}
+    Página {{pagination.page}} de {{pagination.totalPages}}
+    {{#if pagination.hasNext}}
+      <a href="?page={{add pagination.page 1}}">Siguiente</a>
+    {{/if}}
+  </div>
+{{else}}
+  <p>No hay productos</p>
+{{/if}}
